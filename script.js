@@ -59,9 +59,25 @@ function startGame(){
 // WHEN A CELL OF THE GAME IS CLICKED
 function turnClick(square) {
 
-    // FUNCTION TO MARK THE CLICKED BLOCK
-    // WITH THE HUMAN PLAYER CHARACTER IE O
-    turn(square.target.id, 'O');
+    // IN THE BOARD WHENEVER A MOVE IS MADE
+    // THE NUMBER IS REPLACED BY THE CHARACTER OF THE PLAYER
+    // SO IF THE BOARD HAS THE CELL VALUE STILL AS NUMBER
+    // THAT MEANS IT IS NEITHER USED BY AI OR THE HUMAN PLAYER
+    // SO IT CAN BE STILL FILLED
+    if (typeof origBoard[square.target.id] == 'number'){
+    
+        // FUNCTION TO MARK THE CLICKED BLOCK
+        // WITH THE HUMAN PLAYER CHARACTER IE O
+        turn(square.target.id, 'O');
+
+        // TO CHECK FOR A TIE
+        if(!checkTie()){ 
+            // NO TIE
+            // SO NOW THE AI PLAYER TAKES HIS TURN
+            // USING THE SIMPLE METHOD
+            turn(bestSpot(), aiPlayer);
+        }
+    }
 }
 
 // FUNCTION TO MARK THE CLICKED SQUARE
@@ -81,8 +97,9 @@ function turn(squareId, player){
     let gameWon = checkWin(origBoard, player)
 
     // IF THE GAME IS WON BY THIS PLAYER
-    if(gameWon)
+    if(gameWon){
         gameOver(gameWon)
+    }    
 }
 
 // DETERMINE THE WINNER
@@ -106,14 +123,56 @@ function checkWin(board, player) {
 function gameOver(gameWon){
     for (let index of winCombinations[gameWon.index]){
         document.getElementById(index).style.backgroundColor = 
-            gameWon.player = humanPlayer ? "blue" : "red"
+            gameWon.player == humanPlayer ? "blue" : "red"
     }
 
     for (var i = 0; i < cells.length; i++){
         cells[i].removeEventListener('click', turnClick, false)
     }
+
+    declareWinner(gameWon.player == humanPlayer ? "YOU WON" : "YOU LOSE");
 }
 
-// BASIC AI
+// FUNCTION TO DECLARE THE WINNER
+function declareWinner(who){
+    document.querySelector(".endgame").style.display = "block";
+    document.querySelector(".endgame .text").innerText = who;
+}
+
+
+
+// BASIC / SIMPLE METHOD
+
+function bestSpot(){ 
+    return emptySquares()[0];
+}
+
+function emptySquares(){
+    return origBoard.filter(s => typeof s == 'number')
+}
+
+// FUNCTION TO CHECK FOR TIE
+function checkTie(){
+    // IF EACH CELL IS FILLED 
+    // AND NO WINNER IS YET FOUND
+    // THUS THE GAME IS TIES
+    if(emptySquares().length == 0){
+
+        // REMOVE THE EVENT LISTENER OF CLICK FROM EACH CELL
+        // CHANGE THE BACKGROUND COLOR OF ALL THE CELLS TO GREEN
+        // TO DEPICT THAT THE GAME IS TIED
+        for(var i = 0; i<cells.length; i++){
+
+            cells[i].style.backgroundColor = "green";
+            cells[i].removeEventListener('click', turnClick, false)
+        }
+
+        // DECLARE THE RESULT
+        declareWinner("GAME TIE😥😥")
+    }
+}
+
+
+
 
 // MINMAX ALGORITHM PLAYER
