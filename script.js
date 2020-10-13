@@ -94,15 +94,15 @@ function turn(squareId, player){
 
     // AFTER EVERY CLICK OR THE MOVE 
     // WE NEE TO CHECK IF THE PLAYER HAS WON
-    let gameWon = checkWin(origBoard, player)
+    let gameWon = checkWin(origBoard, player);
 
     // IF THE GAME IS WON BY THIS PLAYER
     if(gameWon){
-        gameOver(gameWon)
+        gameOver(gameWon);
     }    
 }
 
-// DETERMINE THE WINNER
+//################### DETERMINE THE RESULT ###################//
 
 function checkWin(board, player) {
     let plays = board.reduce((a,e,i) =>
@@ -123,14 +123,14 @@ function checkWin(board, player) {
 function gameOver(gameWon){
     for (let index of winCombinations[gameWon.index]){
         document.getElementById(index).style.backgroundColor = 
-            gameWon.player == humanPlayer ? "blue" : "red"
+            gameWon.player == humanPlayer ? "blue" : "red";
     }
 
     for (var i = 0; i < cells.length; i++){
-        cells[i].removeEventListener('click', turnClick, false)
+        cells[i].removeEventListener('click', turnClick, false);
     }
 
-    declareWinner(gameWon.player == humanPlayer ? "YOU WON" : "YOU LOSE");
+    declareWinner(gameWon.player == humanPlayer ? "YOU WON🤑🤑" : "YOU LOSE😥😥");
 }
 
 // FUNCTION TO DECLARE THE WINNER
@@ -139,17 +139,6 @@ function declareWinner(who){
     document.querySelector(".endgame .text").innerText = who;
 }
 
-
-
-// BASIC / SIMPLE METHOD
-
-function bestSpot(){ 
-    return emptySquares()[0];
-}
-
-function emptySquares(){
-    return origBoard.filter(s => typeof s == 'number')
-}
 
 // FUNCTION TO CHECK FOR TIE
 function checkTie(){
@@ -164,15 +153,66 @@ function checkTie(){
         for(var i = 0; i<cells.length; i++){
 
             cells[i].style.backgroundColor = "green";
-            cells[i].removeEventListener('click', turnClick, false)
+            cells[i].removeEventListener('click', turnClick, false);
         }
 
         // DECLARE THE RESULT
-        declareWinner("GAME TIE😥😥")
+        declareWinner("GAME TIE😅😅");
     }
+}
+//##################### AI PLAYER MOVE #########################//
+
+// FUCNTION TO RETURN THE CELL CHOOSEN BY AI PLAYER
+function bestSpot(){ 
+
+    // FOR THE MIN MAX ALGORITHM
+    return minimax(origBoard, aiPlayer).index;
+    
+    // FOR THE SIMPLE ALGORITHM
+    // return emptySquares()[0];
 }
 
 
+//################### SIMPLE METHOD SOLUTION ###################//
+
+// THIS METHOD INPUTS THE COMPUTER CHARACTER 
+// INTO THE FIRST FREE CELL
+
+// FUNCTION TO RETURN THE EMPTY CELL LIST
+function emptySquares(){
+    return origBoard.filter(s => typeof s == 'number');
+}
 
 
-// MINMAX ALGORITHM PLAYER
+//################### MINMAX ALGORITHM PLAYER ###################//
+
+function minimax(newBoard, player){
+    
+    // GET ALL THE EMPTY CELLS
+    var availSpots = emptySquares(newBoard);
+
+    // CHECK FOR THE WIN STATES
+    if (checkWin(newBoard, player)){
+     
+        // IF 0 WINS RETURN -10
+        // IF  X WINS RETURN +20
+        if(checkWin(newBoard, humanPlayer)){
+            return {score : -10};
+        }else if(checkWin(newBoard, aiPlayer)){
+            return {score : 20};
+        }else if(availSpots.length == 0){
+            return {score : 0};
+        }
+
+        var moves = [];
+
+        for(var i =0; i < availSpots.length; i++){
+            var move = {};
+            move.index = newBoard[availSpots[i]];
+            
+        }
+
+    }
+
+}
+
