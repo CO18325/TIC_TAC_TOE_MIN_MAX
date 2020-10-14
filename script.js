@@ -66,6 +66,7 @@ function turnClick(square) {
     // SO IT CAN BE STILL FILLED
     if (typeof origBoard[square.target.id] == 'number'){
     
+        
         // FUNCTION TO MARK THE CLICKED BLOCK
         // WITH THE HUMAN PLAYER CHARACTER IE O
         turn(square.target.id, 'O');
@@ -91,6 +92,11 @@ function turn(squareId, player){
     // UPDATE THE CLICKED SQUARE 
     // WITH THE CHARACTER OF THE CORRESSPONDING PLAYER 
     document.getElementById(squareId).innerText = player;
+
+    if(player == 'O')
+        document.getElementById(squareId).style.backgroundColor = "green";
+    else
+        document.getElementById(squareId).style.backgroundColor = "yellow";
 
     // AFTER EVERY CLICK OR THE MOVE 
     // WE NEE TO CHECK IF THE PLAYER HAS WON
@@ -152,7 +158,7 @@ function checkTie(){
         // TO DEPICT THAT THE GAME IS TIED
         for(var i = 0; i<cells.length; i++){
 
-            cells[i].style.backgroundColor = "green";
+            cells[i].style.backgroundColor = "turquoise";
             cells[i].removeEventListener('click', turnClick, false);
         }
 
@@ -160,6 +166,7 @@ function checkTie(){
         declareWinner("GAME TIE😅😅");
     }
 }
+
 //##################### AI PLAYER MOVE #########################//
 
 // FUCNTION TO RETURN THE CELL CHOOSEN BY AI PLAYER
@@ -186,33 +193,75 @@ function emptySquares(){
 
 //################### MINMAX ALGORITHM PLAYER ###################//
 
+
+
+// RECURSIVE FUNCTION TO GET THE BEST POSSIBLE MOVE
 function minimax(newBoard, player){
     
     // GET ALL THE EMPTY CELLS
     var availSpots = emptySquares(newBoard);
 
     // CHECK FOR THE WIN STATES
-    if (checkWin(newBoard, player)){
-     
-        // IF 0 WINS RETURN -10
-        // IF  X WINS RETURN +20
-        if(checkWin(newBoard, humanPlayer)){
-            return {score : -10};
-        }else if(checkWin(newBoard, aiPlayer)){
-            return {score : 20};
-        }else if(availSpots.length == 0){
-            return {score : 0};
-        }
-
-        var moves = [];
-
-        for(var i =0; i < availSpots.length; i++){
-            var move = {};
-            move.index = newBoard[availSpots[i]];
-            
-        }
-
+    
+    // IF 0 WINS RETURN -10
+    // IF  X WINS RETURN +20
+    if(checkWin(newBoard, humanPlayer)){
+        return {score : -10};
+    }else if(checkWin(newBoard, aiPlayer)){
+        return {score : 10};
+    }else if(availSpots.length == 0){
+        return {score : 0};
     }
 
+    var moves = [];
+    // LOOP THROUGH EACH EMPTY CELL 
+    // AND CHECK FOR THE SCORE
+    for(var i =0; i < availSpots.length; i++){
+        // STORE THE SCORE IN THIS MOVE OBJECT
+        var move = {};
+        move.index = newBoard[availSpots[i]];
+        
+        newBoard[availSpots[i]] = player;
+                
+        // CHECK THE SCORE AFTER THIS MOVE
+        if (player == aiPlayer){
+            var result = minimax(newBoard, humanPlayer);
+            move.score = result.score;
+        }else{
+            var result = minimax(newBoard, aiPlayer);
+            move.score = result.score;
+        }
+
+        newBoard[availSpots[i]] = move.index;
+        moves.push(move);
+    }
+
+    var bestm;
+    
+    if (player === aiPlayer){
+        var bestsc = -99999;
+        for(var i=0 ;i<moves.length; i++){
+            if (moves[i].score > bestsc){
+                bestsc = moves[i].score;
+                bestm = i;
+            }
+        }
+    }else{
+        var bestsc = 99999;
+        for(var i=0 ;i<moves.length; i++){
+            if (moves[i].score < bestsc){
+                bestsc = moves[i].score;
+                bestm = i;
+            }
+        }                
+    }
+
+    // RETURN THE BEST MOVE
+    return moves[bestm];
 }
+
+
+
+
+
 
